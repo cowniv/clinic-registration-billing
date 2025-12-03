@@ -5,3 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "clinic-registration-billing": "file:..",
+    "react": "^19.0.0",
