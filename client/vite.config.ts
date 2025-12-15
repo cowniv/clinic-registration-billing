@@ -7,3 +7,5 @@ export default defineConfig({
   server: {
     // the Express API runs on 4000; same-origin calls in dev
     proxy: { "/api": "http://localhost:4000" },
+  },
+});
