@@ -19,3 +19,14 @@ export default function Layout() {
           <NavLink to="/patients" className={link}>
             Patients
           </NavLink>
+          {can("cashier") && (
+            <NavLink to="/reports/daily" className={link}>
+              Daily report
+            </NavLink>
+          )}
+          <div className="ml-auto flex items-center gap-3 text-sm">
+            <span className="text-slate-500">
+              {user?.full_name} · <span className="font-medium">{user && ROLE_LABEL[user.role]}</span>
+            </span>
+            <button className="btn-ghost" onClick={logout}>
+              Log out
