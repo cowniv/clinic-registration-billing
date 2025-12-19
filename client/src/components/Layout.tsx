@@ -30,3 +30,13 @@ export default function Layout() {
             </span>
             <button className="btn-ghost" onClick={logout}>
               Log out
+            </button>
+          </div>
+        </div>
+      </header>
+      <main className="mx-auto max-w-5xl px-4 py-6">
+        <Outlet />
+      </main>
+    </div>
+  );
+}
