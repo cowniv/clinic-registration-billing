@@ -17,3 +17,22 @@ export type Service = { id: number; code: string; name: string; category: string
 
 export type Line = {
   id: number;
+  code: string;
+  description: string;
+  quantity: number;
+  unit_price_cents: number;
+  amount_cents: number;
+};
+
+export type Payment = {
+  id: number;
+  receipt_no: string;
+  method: "cash" | "gcash" | "card";
+  amount_cents: number;
+  tendered_cents: number;
+  reference: string | null;
+  created_at: string;
+  received_by_name: string;
+};
+
+export type DiscountType = "none" | "senior" | "pwd";
