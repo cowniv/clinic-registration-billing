@@ -55,3 +55,22 @@ export type Invoice = {
   subtotal_cents: number;
   discount_cents: number;
   total_cents: number;
+  paid_cents: number;
+  balance_cents: number;
+};
+
+export class ApiError extends Error {
+  constructor(message: string, public status: number, public fields?: Record<string, string[]>) {
+    super(message);
+  }
+}
+
+const TOKEN_KEY = "clinic.token";
+export const tokenStore = {
+  get: () => localStorage.getItem(TOKEN_KEY),
+  set: (t: string) => localStorage.setItem(TOKEN_KEY, t),
+  clear: () => localStorage.removeItem(TOKEN_KEY),
+};
+
+export async function api<T>(path: string, options: { method?: string; body?: unknown } = {}): Promise<T> {
+  const token = tokenStore.get();
