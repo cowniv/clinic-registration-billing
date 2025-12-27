@@ -36,3 +36,22 @@ export type Payment = {
 };
 
 export type DiscountType = "none" | "senior" | "pwd";
+
+export type Invoice = {
+  visit: {
+    id: number;
+    patient_id: number;
+    reason: string | null;
+    status: "open" | "paid" | "void";
+    discount_type: DiscountType;
+    discount_id_no: string | null;
+    created_at: string;
+    first_name: string;
+    last_name: string;
+    birth_date: string;
+  };
+  lines: Line[];
+  payments: Payment[];
+  subtotal_cents: number;
+  discount_cents: number;
+  total_cents: number;
