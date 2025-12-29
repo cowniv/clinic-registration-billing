@@ -74,3 +74,21 @@ export const tokenStore = {
 
 export async function api<T>(path: string, options: { method?: string; body?: unknown } = {}): Promise<T> {
   const token = tokenStore.get();
+  const res = await fetch(`/api${path}`, {
+    method: options.method ?? (options.body ? "POST" : "GET"),
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: options.body ? JSON.stringify(options.body) : undefined,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    if (res.status === 401 && token) {
+      tokenStore.clear();
+      window.location.href = "/login";
+    }
+    throw new ApiError(data.error ?? "Request failed", res.status, data.fields);
+  }
+  return data as T;
+}
