@@ -20,3 +20,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function login(username: string, password: string) {
     const res = await api<{ token: string; user: User }>("/auth/login", { body: { username, password } });
     tokenStore.set(res.token);
+    localStorage.setItem(USER_KEY, JSON.stringify(res.user));
+    setUser(res.user);
+  }
+
+  function logout() {
+    tokenStore.clear();
+    localStorage.removeItem(USER_KEY);
+    setUser(null);
+  }
+
+  // admin can do everything, same rule as the server
