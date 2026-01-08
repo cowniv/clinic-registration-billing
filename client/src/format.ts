@@ -16,3 +16,8 @@ export const todayManila = () => new Date(Date.now() + 8 * 3600e3).toISOString()
 
 export function age(birthDate: string) {
   const b = new Date(birthDate);
+  const now = new Date();
+  let years = now.getFullYear() - b.getFullYear();
+  if (now < new Date(now.getFullYear(), b.getMonth(), b.getDate())) years--;
+  return years;
+}
