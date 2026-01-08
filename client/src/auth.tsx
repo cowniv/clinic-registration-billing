@@ -31,3 +31,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   // admin can do everything, same rule as the server
+  const can = (...roles: Role[]) => !!user && (user.role === "admin" || roles.includes(user.role));
+
+  return <AuthContext.Provider value={{ user, login, logout, can }}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be inside AuthProvider");
+  return ctx;
+}
