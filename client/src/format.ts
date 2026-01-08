@@ -10,3 +10,9 @@ export const manilaTime = (sqlDate: string) =>
     dateStyle: "medium",
     timeStyle: "short",
     timeZone: "Asia/Manila",
+  }).format(new Date(sqlDate.replace(" ", "T") + "Z"));
+
+export const todayManila = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
+
+export function age(birthDate: string) {
+  const b = new Date(birthDate);
