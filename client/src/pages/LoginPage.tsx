@@ -1,0 +1,13 @@
+import { useState, type FormEvent } from "react";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../auth";
+
+export default function LoginPage() {
+  const { user, login } = useAuth();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  if (user) return <Navigate to="/" replace />;
+
