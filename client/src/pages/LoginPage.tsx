@@ -11,3 +11,15 @@ export default function LoginPage() {
 
   if (user) return <Navigate to="/" replace />;
 
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      await login(username, password);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
