@@ -36,3 +36,15 @@ export default function LoginPage() {
           <input id="username" className="input" value={username} onChange={(e) => setUsername(e.target.value)} autoFocus />
         </div>
         <div>
+          <label className="label" htmlFor="password">Password</label>
+          <input id="password" type="password" className="input" value={password} onChange={(e) => setPassword(e.target.value)} />
+        </div>
+        {error && <p className="text-sm text-red-600">{error}</p>}
+        <button className="btn w-full" disabled={busy}>
+          {busy ? "Logging in..." : "Log in"}
+        </button>
+        <p className="text-xs text-slate-400">Demo: frontdesk / cashier / admin, password clinic123</p>
+      </form>
+    </div>
+  );
+}
