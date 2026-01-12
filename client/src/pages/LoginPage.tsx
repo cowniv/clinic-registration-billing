@@ -23,3 +23,16 @@ export default function LoginPage() {
       setBusy(false);
     }
   }
+
+  return (
+    <div className="grid min-h-screen place-items-center bg-slate-50 px-4">
+      <form onSubmit={submit} className="card w-full max-w-sm space-y-4">
+        <div>
+          <h1 className="text-xl font-bold text-brand">Clinic Front Desk</h1>
+          <p className="text-sm text-slate-500">Staff login</p>
+        </div>
+        <div>
+          <label className="label" htmlFor="username">Username</label>
+          <input id="username" className="input" value={username} onChange={(e) => setUsername(e.target.value)} autoFocus />
+        </div>
+        <div>
