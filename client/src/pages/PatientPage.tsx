@@ -15,3 +15,20 @@ export default function PatientPage() {
   const navigate = useNavigate();
   const [patient, setPatient] = useState<PatientWithVisits | null>(null);
   const [reason, setReason] = useState("");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    api<PatientWithVisits>(`/patients/${id}`)
+      .then(setPatient)
+      .catch((e) => setError(e.message));
+  }, [id]);
+
+  async function startVisit(e: FormEvent) {
+    e.preventDefault();
+    try {
+      const inv = await api<Invoice>("/visits", { body: { patient_id: Number(id), reason } });
+      navigate(`/visits/${inv.visit.id}`);
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  }
