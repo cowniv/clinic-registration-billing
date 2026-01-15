@@ -32,3 +32,20 @@ export default function PatientPage() {
       setError((err as Error).message);
     }
   }
+
+  if (error) return <p className="text-red-600">{error}</p>;
+  if (!patient) return <p className="text-slate-500">Loading...</p>;
+
+  return (
+    <div className="space-y-4">
+      <Link to="/patients" className="text-sm text-brand">
+        ← Patients
+      </Link>
+      <div className="card">
+        <h1 className="text-2xl font-bold">
+          {patient.first_name} {patient.last_name}
+        </h1>
+        <p className="text-sm text-slate-500">
+          {patient.sex === "F" ? "Female" : "Male"} · {age(patient.birth_date)} yrs (born {patient.birth_date})
+          {patient.phone && ` · ${patient.phone}`}
+        </p>
