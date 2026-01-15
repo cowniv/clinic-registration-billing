@@ -49,3 +49,20 @@ export default function PatientPage() {
           {patient.sex === "F" ? "Female" : "Male"} · {age(patient.birth_date)} yrs (born {patient.birth_date})
           {patient.phone && ` · ${patient.phone}`}
         </p>
+        {patient.address && <p className="text-sm text-slate-500">{patient.address}</p>}
+      </div>
+
+      {can("frontdesk") && (
+        <form onSubmit={startVisit} className="card flex flex-wrap items-end gap-3">
+          <div className="min-w-60 flex-1">
+            <label className="label" htmlFor="reason">Reason for visit</label>
+            <input id="reason" className="input" value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. Annual check-up" />
+          </div>
+          <button className="btn">Start visit</button>
+        </form>
+      )}
+
+      <div className="card p-0">
+        <h2 className="px-5 pt-4 font-semibold">Visit history</h2>
+        {patient.visits.length === 0 ? (
+          <p className="p-5 text-sm text-slate-500">No visits yet.</p>
