@@ -66,3 +66,20 @@ export default function PatientPage() {
         <h2 className="px-5 pt-4 font-semibold">Visit history</h2>
         {patient.visits.length === 0 ? (
           <p className="p-5 text-sm text-slate-500">No visits yet.</p>
+        ) : (
+          <ul className="mt-2 divide-y divide-slate-100">
+            {patient.visits.map((v) => (
+              <li key={v.id}>
+                <Link to={`/visits/${v.id}`} className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50">
+                  <span className="text-sm text-slate-500">{manilaTime(v.created_at)}</span>
+                  <span className="text-sm">{v.reason}</span>
+                  <span className={`ml-auto rounded-full px-2 py-0.5 text-xs font-semibold ${STATUS_STYLE[v.status]}`}>{v.status}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
