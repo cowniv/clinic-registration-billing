@@ -72,3 +72,27 @@ export default function PatientsPage() {
           <div>
             <label className="label" htmlFor="sex">Sex</label>
             <select id="sex" className="input" value={form.sex} onChange={(e) => setForm({ ...form, sex: e.target.value })}>
+              <option value="F">Female</option>
+              <option value="M">Male</option>
+            </select>
+          </div>
+          {field("phone", "Mobile (09XXXXXXXXX)")}
+          {field("address", "Address")}
+          <div className="flex items-center gap-3 sm:col-span-2">
+            <button className="btn">Save patient</button>
+            {message && <p className="text-sm text-red-600">{message}</p>}
+          </div>
+        </form>
+      )}
+
+      <input
+        className="input"
+        placeholder="Search by name or mobile number..."
+        value={q}
+        onChange={(e) => setQ(e.target.value)}
+        autoFocus
+      />
+
+      <div className="card p-0">
+        {results.length === 0 ? (
+          <p className="p-5 text-sm text-slate-500">No matching patients.</p>
