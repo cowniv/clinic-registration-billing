@@ -96,3 +96,27 @@ export default function PatientsPage() {
       <div className="card p-0">
         {results.length === 0 ? (
           <p className="p-5 text-sm text-slate-500">No matching patients.</p>
+        ) : (
+          <ul className="divide-y divide-slate-100">
+            {results.map((p) => (
+              <li key={p.id}>
+                <Link to={`/patients/${p.id}`} className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50">
+                  <span className="font-medium">
+                    {p.last_name}, {p.first_name}
+                  </span>
+                  <span className="text-sm text-slate-500">
+                    {p.sex} · {age(p.birth_date)} yrs
+                  </span>
+                  {age(p.birth_date) >= 60 && (
+                    <span className="rounded-full bg-violet-100 px-2 py-0.5 text-xs font-semibold text-violet-700">senior</span>
+                  )}
+                  <span className="ml-auto text-sm text-slate-400">{p.phone}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
