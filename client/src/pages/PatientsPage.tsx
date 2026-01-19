@@ -23,3 +23,27 @@ export default function PatientsPage() {
     }, 250);
     return () => clearTimeout(t);
   }, [q]);
+
+  async function register(e: FormEvent) {
+    e.preventDefault();
+    setErrors({});
+    setMessage("");
+    try {
+      const p = await api<Patient>("/patients", { body: form });
+      navigate(`/patients/${p.id}`);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setErrors(err.fields ?? {});
+        setMessage(err.message);
+      }
+    }
+  }
+
+  const field = (name: keyof typeof EMPTY, label: string, type = "text") => (
+    <div>
+      <label className="label" htmlFor={name}>{label}</label>
+      <input
+        id={name}
+        type={type}
+        className="input"
+        value={form[name]}
