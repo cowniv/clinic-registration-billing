@@ -17,3 +17,21 @@ export default function ReceiptPage() {
     api<Receipt>(`/payments/${id}/receipt`).then(setData);
   }, [id]);
 
+  if (!data) return <p className="text-slate-500">Loading...</p>;
+  const { clinic, payment, invoice } = data;
+
+  return (
+    <div className="space-y-4">
+      <div className="no-print flex gap-2">
+        <Link to={`/visits/${invoice.visit.id}`} className="btn-ghost">
+          ← Back to visit
+        </Link>
+        <button className="btn" onClick={() => window.print()}>
+          Print receipt
+        </button>
+      </div>
+
+      <article className="print-area card mx-auto max-w-sm font-mono text-sm">
+        <header className="text-center">
+          <p className="font-bold">{clinic.name}</p>
+          <p className="text-xs">{clinic.address}</p>
