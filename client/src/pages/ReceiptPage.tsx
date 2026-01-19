@@ -71,3 +71,21 @@ export default function ReceiptPage() {
           </>
         ) : (
           <Line label="Ref" value={payment.reference ?? ""} />
+        )}
+        <Line label="Balance" value={peso(invoice.balance_cents)} />
+        <hr className="my-3 border-dashed" />
+        <p className="text-center text-xs">Received by {payment.received_by_name}</p>
+        <p className="text-center text-xs">Thank you. Keep this receipt.</p>
+      </article>
+    </div>
+  );
+}
+
+function Line({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
+  return (
+    <div className={`flex justify-between ${bold ? "font-bold" : ""}`}>
+      <span>{label}</span>
+      <span>{value}</span>
+    </div>
+  );
+}
