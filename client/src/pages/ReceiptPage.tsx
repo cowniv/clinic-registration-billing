@@ -53,3 +53,21 @@ export default function ReceiptPage() {
             <span>{peso(li.amount_cents)}</span>
           </div>
         ))}
+        <hr className="my-3 border-dashed" />
+        <Line label="Subtotal" value={peso(invoice.subtotal_cents)} />
+        {invoice.discount_cents > 0 && (
+          <>
+            <Line label={`Less 20% ${invoice.visit.discount_type.toUpperCase()}`} value={`-${peso(invoice.discount_cents)}`} />
+            <p className="text-xs">ID: {invoice.visit.discount_id_no}</p>
+          </>
+        )}
+        <Line label="TOTAL" value={peso(invoice.total_cents)} bold />
+        <hr className="my-3 border-dashed" />
+        <Line label={`Paid (${payment.method.toUpperCase()})`} value={peso(payment.amount_cents)} />
+        {payment.method === "cash" ? (
+          <>
+            <Line label="Cash" value={peso(payment.tendered_cents)} />
+            <Line label="Change" value={peso(payment.change_cents)} />
+          </>
+        ) : (
+          <Line label="Ref" value={payment.reference ?? ""} />
