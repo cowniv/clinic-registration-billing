@@ -35,3 +35,21 @@ export default function ReceiptPage() {
         <header className="text-center">
           <p className="font-bold">{clinic.name}</p>
           <p className="text-xs">{clinic.address}</p>
+          <p className="mt-2 font-bold">OFFICIAL RECEIPT</p>
+          <p>{payment.receipt_no}</p>
+          <p className="text-xs">{manilaTime(payment.created_at)}</p>
+        </header>
+        <hr className="my-3 border-dashed" />
+        <p>
+          Patient: {invoice.visit.last_name}, {invoice.visit.first_name}
+        </p>
+        <p>Visit #: {invoice.visit.id}</p>
+        <hr className="my-3 border-dashed" />
+        {invoice.lines.map((li) => (
+          <div key={li.id} className="flex justify-between gap-2">
+            <span>
+              {li.quantity} x {li.description}
+            </span>
+            <span>{peso(li.amount_cents)}</span>
+          </div>
+        ))}
