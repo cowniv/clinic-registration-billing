@@ -47,3 +47,28 @@ export default function PatientsPage() {
         type={type}
         className="input"
         value={form[name]}
+        onChange={(e) => setForm({ ...form, [name]: e.target.value })}
+      />
+      {errors[name] && <p className="mt-1 text-xs text-red-600">{errors[name][0]}</p>}
+    </div>
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Patients</h1>
+        {can("frontdesk") && (
+          <button className="btn" onClick={() => setShowForm((s) => !s)}>
+            {showForm ? "Close" : "+ Register patient"}
+          </button>
+        )}
+      </div>
+
+      {showForm && (
+        <form onSubmit={register} className="card grid gap-4 sm:grid-cols-2">
+          {field("first_name", "First name")}
+          {field("last_name", "Last name")}
+          {field("birth_date", "Birth date", "date")}
+          <div>
+            <label className="label" htmlFor="sex">Sex</label>
+            <select id="sex" className="input" value={form.sex} onChange={(e) => setForm({ ...form, sex: e.target.value })}>
