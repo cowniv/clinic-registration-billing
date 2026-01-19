@@ -35,3 +35,57 @@ export default function ReceiptPage() {
         <header className="text-center">
           <p className="font-bold">{clinic.name}</p>
           <p className="text-xs">{clinic.address}</p>
+          <p className="mt-2 font-bold">OFFICIAL RECEIPT</p>
+          <p>{payment.receipt_no}</p>
+          <p className="text-xs">{manilaTime(payment.created_at)}</p>
+        </header>
+        <hr className="my-3 border-dashed" />
+        <p>
+          Patient: {invoice.visit.last_name}, {invoice.visit.first_name}
+        </p>
+        <p>Visit #: {invoice.visit.id}</p>
+        <hr className="my-3 border-dashed" />
+        {invoice.lines.map((li) => (
+          <div key={li.id} className="flex justify-between gap-2">
+            <span>
+              {li.quantity} x {li.description}
+            </span>
+            <span>{peso(li.amount_cents)}</span>
+          </div>
+        ))}
+        <hr className="my-3 border-dashed" />
+        <Line label="Subtotal" value={peso(invoice.subtotal_cents)} />
+        {invoice.discount_cents > 0 && (
+          <>
+            <Line label={`Less 20% ${invoice.visit.discount_type.toUpperCase()}`} value={`-${peso(invoice.discount_cents)}`} />
+            <p className="text-xs">ID: {invoice.visit.discount_id_no}</p>
+          </>
+        )}
+        <Line label="TOTAL" value={peso(invoice.total_cents)} bold />
+        <hr className="my-3 border-dashed" />
+        <Line label={`Paid (${payment.method.toUpperCase()})`} value={peso(payment.amount_cents)} />
+        {payment.method === "cash" ? (
+          <>
+            <Line label="Cash" value={peso(payment.tendered_cents)} />
+            <Line label="Change" value={peso(payment.change_cents)} />
+          </>
+        ) : (
+          <Line label="Ref" value={payment.reference ?? ""} />
+        )}
+        <Line label="Balance" value={peso(invoice.balance_cents)} />
+        <hr className="my-3 border-dashed" />
+        <p className="text-center text-xs">Received by {payment.received_by_name}</p>
+        <p className="text-center text-xs">Thank you. Keep this receipt.</p>
+      </article>
+    </div>
+  );
+}
+
+function Line({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
+  return (
+    <div className={`flex justify-between ${bold ? "font-bold" : ""}`}>
+      <span>{label}</span>
+      <span>{value}</span>
+    </div>
+  );
+}
