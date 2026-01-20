@@ -18,3 +18,23 @@ export default function ReportPage() {
   useEffect(() => {
     api<Report>(`/reports/daily?date=${date}`).then(setReport);
   }, [date]);
+
+  return (
+    <div className="space-y-4">
+      <div className="no-print flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold">Daily sales report</h1>
+        <div className="flex gap-2">
+          <input type="date" className="input" value={date} onChange={(e) => setDate(e.target.value)} />
+          <button className="btn-ghost" onClick={() => window.print()}>
+            Print
+          </button>
+        </div>
+      </div>
+
+      {!report ? (
+        <p className="text-slate-500">Loading...</p>
+      ) : (
+        <div className="print-area space-y-4">
+          <p className="hidden text-lg font-bold print:block">Daily sales report · {report.date}</p>
+          <div className="grid gap-3 sm:grid-cols-4">
+            <Stat label="Total collected" value={peso(report.total_cents)} highlight />
