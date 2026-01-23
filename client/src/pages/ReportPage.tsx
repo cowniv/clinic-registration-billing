@@ -78,3 +78,23 @@ export default function ReportPage() {
                   <tr>
                     <td colSpan={6} className="px-4 py-6 text-center text-slate-400">
                       No payments on this day
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Stat({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+  return (
+    <div className={`card ${highlight ? "border-brand bg-brand-light" : ""}`}>
+      <p className="text-xs font-semibold uppercase capitalize text-slate-500">{label}</p>
+      <p className="mt-1 text-xl font-bold">{value}</p>
+    </div>
+  );
+}
