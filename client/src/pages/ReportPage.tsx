@@ -58,3 +58,23 @@ export default function ReportPage() {
                   <th className="px-4 py-2">Cashier</th>
                   <th className="px-4 py-2 text-right">Amount</th>
                 </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {report.receipts.map((r) => (
+                  <tr key={r.id}>
+                    <td className="px-4 py-2">
+                      <Link to={`/receipts/${r.id}`} className="text-brand hover:underline">
+                        {r.receipt_no}
+                      </Link>
+                    </td>
+                    <td className="px-4 py-2">{manilaTime(r.created_at)}</td>
+                    <td className="px-4 py-2">{r.patient}</td>
+                    <td className="px-4 py-2 capitalize">{r.method}</td>
+                    <td className="px-4 py-2">{r.cashier}</td>
+                    <td className="px-4 py-2 text-right">{peso(r.amount_cents)}</td>
+                  </tr>
+                ))}
+                {report.receipts.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-6 text-center text-slate-400">
+                      No payments on this day
