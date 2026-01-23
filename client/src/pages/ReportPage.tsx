@@ -38,3 +38,23 @@ export default function ReportPage() {
           <p className="hidden text-lg font-bold print:block">Daily sales report · {report.date}</p>
           <div className="grid gap-3 sm:grid-cols-4">
             <Stat label="Total collected" value={peso(report.total_cents)} highlight />
+            {["cash", "gcash", "card"].map((m) => {
+              const row = report.by_method.find((r) => r.method === m);
+              return <Stat key={m} label={`${m === "gcash" ? "GCash" : m} (${row?.count ?? 0})`} value={peso(row?.total_cents ?? 0)} />;
+            })}
+          </div>
+          <p className="text-sm text-slate-500">
+            Visits:{" "}
+            {report.visits.length === 0 ? "none" : report.visits.map((v) => `${v.count} ${v.status}`).join(" · ")}
+          </p>
+          <div className="card p-0">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500">
+                <tr>
+                  <th className="px-4 py-2">Receipt</th>
+                  <th className="px-4 py-2">Time</th>
+                  <th className="px-4 py-2">Patient</th>
+                  <th className="px-4 py-2">Method</th>
+                  <th className="px-4 py-2">Cashier</th>
+                  <th className="px-4 py-2 text-right">Amount</th>
+                </tr>
