@@ -49,3 +49,53 @@ export default function VisitPage() {
   const { visit } = inv;
   const locked = visit.status !== "open" || inv.payments.length > 0;
   const isSeniorAge = age(visit.birth_date) >= 60;
+  const change = method === "cash" ? toCents(tendered) - toCents(amount) : 0;
+
+  const addItem = (e: FormEvent) => {
+    e.preventDefault();
+    if (!serviceId) return;
+    run(() => api(`/visits/${id}/items`, { body: { service_id: Number(serviceId), quantity: qty } }));
+    setServiceId("");
+    setQty(1);
+  };
+
+  const saveDiscount = (e: FormEvent) => {
+    e.preventDefault();
+    run(() =>
+      api(`/visits/${id}/discount`, {
+        method: "PUT",
+        body: { discount_type: discount, discount_id_no: idNo || undefined },
+      })
+    );
+  };
+
+  async function pay(e: FormEvent) {
+    e.preventDefault();
+    setError("");
+    try {
+      const res = await api<{ payment_id: number; invoice: Invoice }>(`/visits/${id}/payments`, {
+        body: {
+          method,
+          amount_cents: toCents(amount),
+          tendered_cents: method === "cash" ? toCents(tendered || amount) : undefined,
+          reference: method === "cash" ? undefined : reference,
+        },
+      });
+      navigate(`/receipts/${res.payment_id}`);
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <Link to={`/patients/${visit.patient_id}`} className="text-sm text-brand">
+        ← {visit.first_name} {visit.last_name}
+      </Link>
+      <div className="flex flex-wrap items-center gap-3">
+        <h1 className="text-2xl font-bold">Visit #{visit.id}</h1>
+        <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${STATUS_STYLE[visit.status]}`}>{visit.status}</span>
+        {visit.reason && <span className="text-slate-500">{visit.reason}</span>}
+      </div>
+
+      {error && <p className="rounded-lg bg-red-50 px-4 py-2 text-sm text-red-700">{error}</p>}
