@@ -99,3 +99,54 @@ export default function VisitPage() {
       </div>
 
       {error && <p className="rounded-lg bg-red-50 px-4 py-2 text-sm text-red-700">{error}</p>}
+
+      <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
+        {/* invoice */}
+        <section className="card space-y-4">
+          <h2 className="font-semibold">Charges</h2>
+          <table className="w-full text-sm">
+            <thead className="text-left text-xs uppercase text-slate-400">
+              <tr>
+                <th className="pb-2">Service</th>
+                <th className="pb-2 text-right">Qty</th>
+                <th className="pb-2 text-right">Price</th>
+                <th className="pb-2 text-right">Amount</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {inv.lines.map((li) => (
+                <tr key={li.id}>
+                  <td className="py-2">{li.description}</td>
+                  <td className="py-2 text-right">{li.quantity}</td>
+                  <td className="py-2 text-right">{peso(li.unit_price_cents)}</td>
+                  <td className="py-2 text-right">{peso(li.amount_cents)}</td>
+                  <td className="py-2 text-right">
+                    {!locked && can("frontdesk") && (
+                      <button
+                        className="text-xs text-red-600 hover:underline"
+                        onClick={() => run(() => api(`/visits/${id}/items/${li.id}`, { method: "DELETE" }))}
+                      >
+                        remove
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              {inv.lines.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="py-4 text-center text-slate-400">
+                    No services yet
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+
+          {!locked && can("frontdesk") && (
+            <form onSubmit={addItem} className="flex flex-wrap gap-2">
+              <select className="input flex-1" value={serviceId} onChange={(e) => setServiceId(e.target.value)}>
+                <option value="">Add a service...</option>
+                {services.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name} — {peso(s.price_cents)}
