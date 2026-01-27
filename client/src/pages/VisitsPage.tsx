@@ -20,3 +20,14 @@ export default function VisitsPage() {
 
   return (
     <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Today's visits</h1>
+        <Link to="/patients" className="btn">
+          + New visit
+        </Link>
+      </div>
+      <div className="card p-0">
+        {rows === null ? (
+          <p className="p-5 text-sm text-slate-500">Loading...</p>
+        ) : rows.length === 0 ? (
+          <p className="p-5 text-sm text-slate-500">No visits yet today. Find or register a patient to start one.</p>
