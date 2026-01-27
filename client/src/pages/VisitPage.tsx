@@ -200,3 +200,53 @@ export default function VisitPage() {
                     key={m}
                     onClick={() => setMethod(m)}
                     className={`rounded-lg border px-2 py-1.5 text-sm capitalize ${method === m ? "border-brand bg-brand-light text-brand" : "border-slate-200"}`}
+                  >
+                    {m === "gcash" ? "GCash" : m}
+                  </button>
+                ))}
+              </div>
+              <div>
+                <label className="label">Amount</label>
+                <input className="input" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} />
+              </div>
+              {method === "cash" ? (
+                <div>
+                  <label className="label">Cash tendered</label>
+                  <input className="input" inputMode="decimal" value={tendered} onChange={(e) => setTendered(e.target.value)} />
+                  {tendered && <p className={`mt-1 text-sm ${change < 0 ? "text-red-600" : "text-slate-600"}`}>Change: {peso(Math.max(change, 0))}</p>}
+                </div>
+              ) : (
+                <div>
+                  <label className="label">Reference no.</label>
+                  <input className="input" value={reference} onChange={(e) => setReference(e.target.value)} />
+                </div>
+              )}
+              <button className="btn w-full">Pay and print receipt</button>
+            </form>
+          )}
+
+          {inv.payments.length > 0 && (
+            <div className="card space-y-2">
+              <h2 className="font-semibold">Receipts</h2>
+              {inv.payments.map((p) => (
+                <Link key={p.id} to={`/receipts/${p.id}`} className="flex justify-between text-sm text-brand hover:underline">
+                  <span>{p.receipt_no}</span>
+                  <span>{peso(p.amount_cents)}</span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </aside>
+      </div>
+    </div>
+  );
+}
+
+function Row({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
+  return (
+    <div className={`flex justify-between ${bold ? "font-semibold" : "text-slate-600"}`}>
+      <dt>{label}</dt>
+      <dd>{value}</dd>
+    </div>
+  );
+}
