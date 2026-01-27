@@ -31,3 +31,14 @@ export default function VisitsPage() {
           <p className="p-5 text-sm text-slate-500">Loading...</p>
         ) : rows.length === 0 ? (
           <p className="p-5 text-sm text-slate-500">No visits yet today. Find or register a patient to start one.</p>
+        ) : (
+          <ul className="divide-y divide-slate-100">
+            {rows.map((v) => (
+              <li key={v.id}>
+                <Link to={`/visits/${v.id}`} className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50">
+                  <span className="w-14 text-xs text-slate-400">#{v.id}</span>
+                  <span className="font-medium">
+                    {v.last_name}, {v.first_name}
+                  </span>
+                  <span className="truncate text-sm text-slate-500">{v.reason}</span>
+                  <span className="ml-auto text-xs text-slate-400">{manilaTime(v.created_at)}</span>
