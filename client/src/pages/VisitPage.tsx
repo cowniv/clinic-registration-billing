@@ -150,3 +150,53 @@ export default function VisitPage() {
                 {services.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.name} — {peso(s.price_cents)}
+                  </option>
+                ))}
+              </select>
+              <input type="number" min={1} max={50} className="input w-20" value={qty} onChange={(e) => setQty(Number(e.target.value))} />
+              <button className="btn" disabled={!serviceId}>
+                Add
+              </button>
+            </form>
+          )}
+
+          <dl className="ml-auto max-w-xs space-y-1 text-sm">
+            <Row label="Subtotal" value={peso(inv.subtotal_cents)} />
+            {inv.discount_cents > 0 && (
+              <Row label={`${visit.discount_type === "senior" ? "Senior" : "PWD"} discount (20%)`} value={`− ${peso(inv.discount_cents)}`} />
+            )}
+            <Row label="Total" value={peso(inv.total_cents)} bold />
+            <Row label="Paid" value={peso(inv.paid_cents)} />
+            <Row label="Balance" value={peso(inv.balance_cents)} bold />
+          </dl>
+        </section>
+
+        <aside className="space-y-4">
+          {/* discount */}
+          <form onSubmit={saveDiscount} className="card space-y-3">
+            <h2 className="font-semibold">Discount</h2>
+            {isSeniorAge && visit.discount_type === "none" && !locked && (
+              <p className="rounded bg-violet-50 px-2 py-1 text-xs text-violet-700">Patient is 60+. Ask for a senior citizen ID.</p>
+            )}
+            <select className="input" value={discount} disabled={locked} onChange={(e) => setDiscount(e.target.value as DiscountType)}>
+              <option value="none">None</option>
+              <option value="senior">Senior citizen (20%)</option>
+              <option value="pwd">PWD (20%)</option>
+            </select>
+            {discount !== "none" && (
+              <input className="input" placeholder="OSCA / PWD ID number" value={idNo} disabled={locked} onChange={(e) => setIdNo(e.target.value)} />
+            )}
+            {!locked && can("frontdesk", "cashier") && <button className="btn-ghost w-full">Apply discount</button>}
+          </form>
+
+          {/* payment */}
+          {visit.status === "open" && can("cashier") && inv.lines.length > 0 && (
+            <form onSubmit={pay} className="card space-y-3">
+              <h2 className="font-semibold">Record payment</h2>
+              <div className="grid grid-cols-3 gap-1">
+                {(["cash", "gcash", "card"] as const).map((m) => (
+                  <button
+                    type="button"
+                    key={m}
+                    onClick={() => setMethod(m)}
+                    className={`rounded-lg border px-2 py-1.5 text-sm capitalize ${method === m ? "border-brand bg-brand-light text-brand" : "border-slate-200"}`}
