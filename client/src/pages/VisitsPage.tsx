@@ -42,3 +42,13 @@ export default function VisitsPage() {
                   </span>
                   <span className="truncate text-sm text-slate-500">{v.reason}</span>
                   <span className="ml-auto text-xs text-slate-400">{manilaTime(v.created_at)}</span>
+                  <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${STATUS_STYLE[v.status]}`}>{v.status}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
