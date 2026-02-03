@@ -116,3 +116,62 @@ export function createApp(db) {
       s.category,
       s.price_cents,
       s.active ? 1 : 0,
+      current.id
+    );
+    res.json(db.prepare("SELECT * FROM services WHERE id = ?").get(current.id));
+  });
+
+  // ---------- visits & invoices ----------
+  app.get("/api/visits", (req, res) => {
+    const date = req.query.date || null; // YYYY-MM-DD, Manila time
+    const rows = db
+      .prepare(
+        `SELECT v.id, v.status, v.reason, v.created_at, p.first_name, p.last_name
+         FROM visits v JOIN patients p ON p.id = v.patient_id
+         WHERE (? IS NULL OR date(v.created_at, '+8 hours') = ?)
+         ORDER BY v.id DESC LIMIT 100`
+      )
+      .all(date, date);
+    res.json(rows);
+  });
+
+  app.post("/api/visits", allow("frontdesk"), body(visitSchema), (req, res) => {
+    const patient = db.prepare("SELECT id FROM patients WHERE id = ?").get(req.body.patient_id);
+    if (!patient) return res.status(404).json({ error: "Patient not found" });
+    const info = db
+      .prepare("INSERT INTO visits (patient_id, reason, created_by) VALUES (?, ?, ?)")
+      .run(patient.id, req.body.reason || null, req.user.id);
+    res.status(201).json(loadInvoice(db, info.lastInsertRowid));
+  });
+
+  app.get("/api/visits/:id", (req, res) => {
+    const inv = loadInvoice(db, idParam(req));
+    if (!inv) return res.status(404).json({ error: "Visit not found" });
+    res.json(inv);
+  });
+
+  // Charges can only change while the invoice is open and nothing has been paid yet.
+  const editableVisit = (req, res, next) => {
+    const v = db.prepare("SELECT status FROM visits WHERE id = ?").get(idParam(req));
+    if (!v) return res.status(404).json({ error: "Visit not found" });
+    const paid = db.prepare("SELECT COUNT(*) AS n FROM payments WHERE visit_id = ?").get(idParam(req)).n;
+    if (v.status !== "open" || paid > 0) {
+      return res.status(409).json({ error: "Invoice is locked once a payment is recorded" });
+    }
+    next();
+  };
+
+  app.post("/api/visits/:id/items", allow("frontdesk"), editableVisit, body(lineItemSchema), (req, res) => {
+    const svc = db.prepare("SELECT * FROM services WHERE id = ? AND active = 1").get(req.body.service_id);
+    if (!svc) return res.status(404).json({ error: "Service not found" });
+    // Copy the price so later catalog changes don't rewrite old invoices.
+    db.prepare(
+      "INSERT INTO line_items (visit_id, service_id, description, quantity, unit_price_cents) VALUES (?, ?, ?, ?, ?)"
+    ).run(idParam(req), svc.id, svc.name, req.body.quantity, svc.price_cents);
+    res.status(201).json(loadInvoice(db, idParam(req)));
+  });
+
+  app.delete("/api/visits/:id/items/:itemId", allow("frontdesk"), editableVisit, (req, res) => {
+    const info = db
+      .prepare("DELETE FROM line_items WHERE id = ? AND visit_id = ?")
+      .run(Number(req.params.itemId), idParam(req));
