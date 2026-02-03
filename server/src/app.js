@@ -175,3 +175,62 @@ export function createApp(db) {
     const info = db
       .prepare("DELETE FROM line_items WHERE id = ? AND visit_id = ?")
       .run(Number(req.params.itemId), idParam(req));
+    if (!info.changes) return res.status(404).json({ error: "Line item not found" });
+    res.json(loadInvoice(db, idParam(req)));
+  });
+
+  app.put("/api/visits/:id/discount", allow("frontdesk", "cashier"), editableVisit, body(discountSchema), (req, res) => {
+    db.prepare("UPDATE visits SET discount_type = ?, discount_id_no = ? WHERE id = ?").run(
+      req.body.discount_type,
+      req.body.discount_type === "none" ? null : req.body.discount_id_no,
+      idParam(req)
+    );
+    res.json(loadInvoice(db, idParam(req)));
+  });
+
+  app.post("/api/visits/:id/void", allow(), (req, res) => {
+    const inv = loadInvoice(db, idParam(req));
+    if (!inv) return res.status(404).json({ error: "Visit not found" });
+    if (inv.payments.length) return res.status(409).json({ error: "Can't void a visit that has payments" });
+    db.prepare("UPDATE visits SET status = 'void' WHERE id = ?").run(inv.visit.id);
+    res.json(loadInvoice(db, inv.visit.id));
+  });
+
+  // ---------- payments ----------
+  const recordPayment = db.transaction((visitId, p, userId) => {
+    const inv = loadInvoice(db, visitId);
+    if (!inv) return { status: 404, error: "Visit not found" };
+    if (inv.visit.status !== "open") return { status: 409, error: `Visit is already ${inv.visit.status}` };
+    if (inv.lines.length === 0) return { status: 409, error: "Add at least one service first" };
+    if (p.amount_cents > inv.balance_cents) return { status: 400, error: "Amount is more than the balance" };
+
+    const tendered = p.method === "cash" ? p.tendered_cents ?? p.amount_cents : p.amount_cents;
+    if (tendered < p.amount_cents) return { status: 400, error: "Cash tendered is less than the amount" };
+
+    const next = db.prepare("SELECT COUNT(*) AS n FROM payments").get().n + 1;
+    const info = db
+      .prepare(
+        `INSERT INTO payments (visit_id, receipt_no, method, amount_cents, tendered_cents, reference, received_by)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`
+      )
+      .run(visitId, formatReceiptNo(next), p.method, p.amount_cents, tendered, p.reference || null, userId);
+
+    if (p.amount_cents === inv.balance_cents) {
+      db.prepare("UPDATE visits SET status = 'paid' WHERE id = ?").run(visitId);
+    }
+    return { status: 201, paymentId: info.lastInsertRowid };
+  });
+
+  app.post("/api/visits/:id/payments", allow("cashier"), body(paymentSchema), (req, res) => {
+    const result = recordPayment(idParam(req), req.body, req.user.id);
+    if (result.error) return res.status(result.status).json({ error: result.error });
+    res.status(201).json({ payment_id: result.paymentId, invoice: loadInvoice(db, idParam(req)) });
+  });
+
+  app.get("/api/payments/:id/receipt", (req, res) => {
+    const pay = db.prepare("SELECT * FROM payments WHERE id = ?").get(idParam(req));
+    if (!pay) return res.status(404).json({ error: "Receipt not found" });
+    const invoice = loadInvoice(db, pay.visit_id);
+    const payment = invoice.payments.find((p) => p.id === pay.id);
+    res.json({
+      clinic: {
