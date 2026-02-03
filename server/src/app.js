@@ -234,3 +234,61 @@ export function createApp(db) {
     const payment = invoice.payments.find((p) => p.id === pay.id);
     res.json({
       clinic: {
+        name: process.env.CLINIC_NAME || "Bayanihan Family Clinic",
+        address: process.env.CLINIC_ADDRESS || "123 Sample St., Manila",
+      },
+      payment: { ...payment, change_cents: payment.tendered_cents - payment.amount_cents },
+      invoice,
+    });
+  });
+
+  // ---------- reports ----------
+  app.get("/api/reports/daily", allow("cashier"), (req, res) => {
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(String(req.query.date))
+      ? String(req.query.date)
+      : new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
+
+    const byMethod = db
+      .prepare(
+        `SELECT method, COUNT(*) AS count, SUM(amount_cents) AS total_cents
+         FROM payments WHERE date(created_at, '+8 hours') = ? GROUP BY method ORDER BY method`
+      )
+      .all(date);
+
+    const receipts = db
+      .prepare(
+        `SELECT pay.id, pay.receipt_no, pay.method, pay.amount_cents, pay.created_at,
+                p.first_name || ' ' || p.last_name AS patient, u.full_name AS cashier
+         FROM payments pay
+         JOIN visits v ON v.id = pay.visit_id
+         JOIN patients p ON p.id = v.patient_id
+         JOIN users u ON u.id = pay.received_by
+         WHERE date(pay.created_at, '+8 hours') = ? ORDER BY pay.id`
+      )
+      .all(date);
+
+    const visits = db
+      .prepare(
+        `SELECT status, COUNT(*) AS count FROM visits WHERE date(created_at, '+8 hours') = ? GROUP BY status`
+      )
+      .all(date);
+
+    res.json({
+      date,
+      total_cents: byMethod.reduce((s, m) => s + m.total_cents, 0),
+      by_method: byMethod,
+      visits,
+      receipts,
+    });
+  });
+
+  // ---------- errors ----------
+  app.use("/api", (_req, res) => res.status(404).json({ error: "Not found" }));
+  // eslint-disable-next-line no-unused-vars
+  app.use((err, _req, res, _next) => {
+    console.error(err);
+    res.status(500).json({ error: "Something went wrong" });
+  });
+
+  return app;
+}
