@@ -22,3 +22,11 @@ export function requireAuth(req, res, next) {
     res.status(401).json({ error: "Session expired, please log in again" });
   }
 }
+
+// Admin can always do everything.
+export const allow =
+  (...roles) =>
+  (req, res, next) => {
+    if (req.user.role === "admin" || roles.includes(req.user.role)) return next();
+    res.status(403).json({ error: "Your role can't do that" });
+  };
