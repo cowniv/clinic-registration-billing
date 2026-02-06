@@ -13,3 +13,18 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS patients (
   id INTEGER PRIMARY KEY,
   first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  birth_date TEXT NOT NULL,
+  sex TEXT NOT NULL CHECK (sex IN ('M', 'F')),
+  phone TEXT,
+  address TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_patients_name ON patients (last_name, first_name);
+
+CREATE TABLE IF NOT EXISTS services (
+  id INTEGER PRIMARY KEY,
+  code TEXT NOT NULL UNIQUE,
+  name TEXT NOT NULL,
+  category TEXT NOT NULL,
+  price_cents INTEGER NOT NULL CHECK (price_cents >= 0),
