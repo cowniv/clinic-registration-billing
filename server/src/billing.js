@@ -14,3 +14,11 @@ export function computeInvoice(lineItems, discountType = "none", paidCents = 0) 
   }));
   const subtotal = lines.reduce((sum, li) => sum + li.amount_cents, 0);
   const rate = DISCOUNT_RATE[discountType] ?? 0;
+  const discount = Math.round(subtotal * rate);
+  const total = subtotal - discount;
+  const balance = Math.max(total - paidCents, 0);
+  return {
+    lines,
+    subtotal_cents: subtotal,
+    discount_type: discountType,
+    discount_cents: discount,
