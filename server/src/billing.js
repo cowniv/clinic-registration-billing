@@ -22,3 +22,10 @@ export function computeInvoice(lineItems, discountType = "none", paidCents = 0) 
     subtotal_cents: subtotal,
     discount_type: discountType,
     discount_cents: discount,
+    total_cents: total,
+    paid_cents: paidCents,
+    balance_cents: balance,
+  };
+}
+
+export const formatReceiptNo = (n) => `OR-${String(n).padStart(6, "0")}`;
