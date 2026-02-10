@@ -28,3 +28,17 @@ CREATE TABLE IF NOT EXISTS services (
   name TEXT NOT NULL,
   category TEXT NOT NULL,
   price_cents INTEGER NOT NULL CHECK (price_cents >= 0),
+  active INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE TABLE IF NOT EXISTS visits (
+  id INTEGER PRIMARY KEY,
+  patient_id INTEGER NOT NULL REFERENCES patients(id),
+  reason TEXT,
+  discount_type TEXT NOT NULL DEFAULT 'none' CHECK (discount_type IN ('none', 'senior', 'pwd')),
+  discount_id_no TEXT,
+  status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'paid', 'void')),
+  created_by INTEGER NOT NULL REFERENCES users(id),
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
