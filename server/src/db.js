@@ -42,3 +42,18 @@ CREATE TABLE IF NOT EXISTS visits (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+CREATE TABLE IF NOT EXISTS line_items (
+  id INTEGER PRIMARY KEY,
+  visit_id INTEGER NOT NULL REFERENCES visits(id) ON DELETE CASCADE,
+  service_id INTEGER NOT NULL REFERENCES services(id),
+  description TEXT NOT NULL,
+  quantity INTEGER NOT NULL CHECK (quantity > 0),
+  unit_price_cents INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS payments (
+  id INTEGER PRIMARY KEY,
+  visit_id INTEGER NOT NULL REFERENCES visits(id),
+  receipt_no TEXT NOT NULL UNIQUE,
+  method TEXT NOT NULL CHECK (method IN ('cash', 'gcash', 'card')),
+  amount_cents INTEGER NOT NULL CHECK (amount_cents > 0),
