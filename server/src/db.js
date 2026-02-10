@@ -57,3 +57,17 @@ CREATE TABLE IF NOT EXISTS payments (
   receipt_no TEXT NOT NULL UNIQUE,
   method TEXT NOT NULL CHECK (method IN ('cash', 'gcash', 'card')),
   amount_cents INTEGER NOT NULL CHECK (amount_cents > 0),
+  tendered_cents INTEGER NOT NULL,
+  reference TEXT,
+  received_by INTEGER NOT NULL REFERENCES users(id),
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+`;
+
+export function openDb(file = process.env.DB_PATH || "clinic.db") {
+  const db = new Database(file);
+  db.pragma("journal_mode = WAL");
+  db.pragma("foreign_keys = ON");
+  db.exec(SCHEMA);
+  return db;
+}
