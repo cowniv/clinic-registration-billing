@@ -8,3 +8,13 @@ export function loadInvoice(db, visitId) {
        FROM visits v
        JOIN patients p ON p.id = v.patient_id
        JOIN users u ON u.id = v.created_by
+       WHERE v.id = ?`
+    )
+    .get(visitId);
+  if (!visit) return null;
+
+  const items = db
+    .prepare(
+      `SELECT li.id, li.service_id, li.description, li.quantity, li.unit_price_cents, s.code
+       FROM line_items li JOIN services s ON s.id = li.service_id
+       WHERE li.visit_id = ? ORDER BY li.id`
