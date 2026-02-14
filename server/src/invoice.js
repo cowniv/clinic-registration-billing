@@ -18,3 +18,13 @@ export function loadInvoice(db, visitId) {
       `SELECT li.id, li.service_id, li.description, li.quantity, li.unit_price_cents, s.code
        FROM line_items li JOIN services s ON s.id = li.service_id
        WHERE li.visit_id = ? ORDER BY li.id`
+    )
+    .all(visitId);
+
+  const payments = db
+    .prepare(
+      `SELECT pay.id, pay.receipt_no, pay.method, pay.amount_cents, pay.tendered_cents, pay.reference,
+              pay.created_at, u.full_name AS received_by_name
+       FROM payments pay JOIN users u ON u.id = pay.received_by
+       WHERE pay.visit_id = ? ORDER BY pay.id`
+    )
