@@ -28,3 +28,12 @@ export function loadInvoice(db, visitId) {
        FROM payments pay JOIN users u ON u.id = pay.received_by
        WHERE pay.visit_id = ? ORDER BY pay.id`
     )
+    .all(visitId);
+
+  const paid = payments.reduce((s, p) => s + p.amount_cents, 0);
+  return {
+    visit,
+    payments,
+    ...computeInvoice(items, visit.discount_type, paid),
+  };
+}
