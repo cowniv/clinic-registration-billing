@@ -13,3 +13,18 @@ export const patientSchema = z.object({
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD")
     .refine((d) => !Number.isNaN(Date.parse(d)) && new Date(d) <= new Date(), "Invalid birth date"),
   sex: z.enum(["M", "F"]),
+  phone: z
+    .string()
+    .trim()
+    .regex(/^(09\d{9}|\+639\d{9})?$/, "Use 09XXXXXXXXX")
+    .optional()
+    .or(z.literal("")),
+  address: z.string().trim().max(200).optional(),
+});
+
+export const serviceSchema = z.object({
+  code: z.string().trim().min(2).max(12).toUpperCase(),
+  name: z.string().trim().min(2).max(80),
+  category: z.enum(["consultation", "laboratory", "imaging", "procedure", "other"]),
+  price_cents: z.number().int().nonnegative(),
+  active: z.boolean().optional(),
