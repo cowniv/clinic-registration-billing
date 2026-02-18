@@ -57,3 +57,17 @@ export const paymentSchema = z
     tendered_cents: z.number().int().positive().optional(),
     reference: z.string().trim().max(40).optional(),
   })
+  .refine((p) => p.method === "cash" || (p.reference && p.reference.length > 0), {
+    message: "Reference number is required for GCash and card",
+    path: ["reference"],
+  });
+
+// Express middleware: replace req.body with the parsed value or answer 400.
+export const body = (schema) => (req, res, next) => {
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: "Invalid input", fields: parsed.error.flatten().fieldErrors });
+  }
+  req.body = parsed.data;
+  next();
+};
