@@ -42,3 +42,14 @@ export function seed(db) {
     USERS.forEach(([username, name, role]) => u.run(username, name, hash, role));
     const s = db.prepare("INSERT INTO services (code, name, category, price_cents) VALUES (?, ?, ?, ?)");
     SERVICES.forEach(([code, name, cat, pesos]) => s.run(code, name, cat, pesos * 100));
+    const p = db.prepare("INSERT INTO patients (first_name, last_name, birth_date, sex, phone, address) VALUES (?, ?, ?, ?, ?, ?)");
+    PATIENTS.forEach((row) => p.run(...row.map((v) => v || null)));
+  })();
+}
+
+// Run directly: `npm run seed`
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const db = openDb();
+  seed(db);
+  console.log(`Seeded. Log in as frontdesk / cashier / admin with password "${DEMO_PASSWORD}".`);
+}
