@@ -28,3 +28,17 @@ export const serviceSchema = z.object({
   category: z.enum(["consultation", "laboratory", "imaging", "procedure", "other"]),
   price_cents: z.number().int().nonnegative(),
   active: z.boolean().optional(),
+});
+
+export const visitSchema = z.object({
+  patient_id: z.number().int().positive(),
+  reason: z.string().trim().max(200).optional(),
+});
+
+export const discountSchema = z
+  .object({
+    discount_type: z.enum(["none", "senior", "pwd"]),
+    discount_id_no: z.string().trim().max(30).optional(),
+  })
+  .refine((d) => d.discount_type === "none" || (d.discount_id_no && d.discount_id_no.length >= 4), {
+    message: "Senior/PWD ID number is required for the discount",
