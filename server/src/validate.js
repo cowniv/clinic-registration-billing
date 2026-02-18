@@ -42,3 +42,18 @@ export const discountSchema = z
   })
   .refine((d) => d.discount_type === "none" || (d.discount_id_no && d.discount_id_no.length >= 4), {
     message: "Senior/PWD ID number is required for the discount",
+    path: ["discount_id_no"],
+  });
+
+export const lineItemSchema = z.object({
+  service_id: z.number().int().positive(),
+  quantity: z.number().int().min(1).max(50).default(1),
+});
+
+export const paymentSchema = z
+  .object({
+    method: z.enum(["cash", "gcash", "card"]),
+    amount_cents: z.number().int().positive(),
+    tendered_cents: z.number().int().positive().optional(),
+    reference: z.string().trim().max(40).optional(),
+  })
