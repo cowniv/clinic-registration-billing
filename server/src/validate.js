@@ -42,3 +42,32 @@ export const discountSchema = z
   })
   .refine((d) => d.discount_type === "none" || (d.discount_id_no && d.discount_id_no.length >= 4), {
     message: "Senior/PWD ID number is required for the discount",
+    path: ["discount_id_no"],
+  });
+
+export const lineItemSchema = z.object({
+  service_id: z.number().int().positive(),
+  quantity: z.number().int().min(1).max(50).default(1),
+});
+
+export const paymentSchema = z
+  .object({
+    method: z.enum(["cash", "gcash", "card"]),
+    amount_cents: z.number().int().positive(),
+    tendered_cents: z.number().int().positive().optional(),
+    reference: z.string().trim().max(40).optional(),
+  })
+  .refine((p) => p.method === "cash" || (p.reference && p.reference.length > 0), {
+    message: "Reference number is required for GCash and card",
+    path: ["reference"],
+  });
+
+// Express middleware: replace req.body with the parsed value or answer 400.
+export const body = (schema) => (req, res, next) => {
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: "Invalid input", fields: parsed.error.flatten().fieldErrors });
+  }
+  req.body = parsed.data;
+  next();
+};
