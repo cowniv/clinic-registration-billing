@@ -28,3 +28,12 @@ createRoot(document.getElementById("root")!).render(
             <Route path="/patients" element={<PatientsPage />} />
             <Route path="/patients/:id" element={<PatientPage />} />
             <Route path="/visits/:id" element={<VisitPage />} />
+            <Route path="/receipts/:id" element={<ReceiptPage />} />
+            <Route path="/reports/daily" element={<ReportPage />} />
+          </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  </StrictMode>
+);
