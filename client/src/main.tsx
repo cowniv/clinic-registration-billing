@@ -18,3 +18,13 @@ function Protected() {
 }
 
 createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route element={<Protected />}>
+            <Route path="/" element={<VisitsPage />} />
+            <Route path="/patients" element={<PatientsPage />} />
+            <Route path="/patients/:id" element={<PatientPage />} />
+            <Route path="/visits/:id" element={<VisitPage />} />
