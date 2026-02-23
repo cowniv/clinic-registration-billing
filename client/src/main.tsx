@@ -8,3 +8,13 @@ import LoginPage from "./pages/LoginPage";
 import PatientsPage from "./pages/PatientsPage";
 import PatientPage from "./pages/PatientPage";
 import VisitPage from "./pages/VisitPage";
+import ReceiptPage from "./pages/ReceiptPage";
+import ReportPage from "./pages/ReportPage";
+import VisitsPage from "./pages/VisitsPage";
+
+function Protected() {
+  const { user } = useAuth();
+  return user ? <Layout /> : <Navigate to="/login" replace />;
+}
+
+createRoot(document.getElementById("root")!).render(
