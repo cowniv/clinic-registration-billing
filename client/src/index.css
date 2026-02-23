@@ -20,3 +20,14 @@
   }
   .label {
     @apply mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500;
+  }
+}
+
+/* Receipt printing: hide the app chrome and print only the receipt on 80mm-ish paper */
+@media print {
+  @page {
+    size: 80mm auto;
+    margin: 4mm;
+  }
+  body {
+    background: white;
