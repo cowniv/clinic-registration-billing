@@ -81,3 +81,31 @@ describe("visit to receipt", () => {
       .put(`/api/visits/${visitId}/discount`)
       .set(as("frontdesk"))
       .send({ discount_type: "senior" });
+    expect(res.status).toBe(400); // ID number missing
+
+    res = await request(app)
+      .put(`/api/visits/${visitId}/discount`)
+      .set(as("frontdesk"))
+      .send({ discount_type: "senior", discount_id_no: "SC-2231" });
+    expect(res.body.total_cents).toBe(60000);
+
+    // front desk can't take money
+    res = await request(app)
+      .post(`/api/visits/${visitId}/payments`)
+      .set(as("frontdesk"))
+      .send({ method: "cash", amount_cents: 60000 });
+    expect(res.status).toBe(403);
+
+    res = await request(app)
+      .post(`/api/visits/${visitId}/payments`)
+      .set(as("cashier"))
+      .send({ method: "cash", amount_cents: 70000, tendered_cents: 100000 });
+    expect(res.status).toBe(400); // over the balance
+
+    res = await request(app)
+      .post(`/api/visits/${visitId}/payments`)
+      .set(as("cashier"))
+      .send({ method: "cash", amount_cents: 60000, tendered_cents: 100000 });
+    expect(res.status).toBe(201);
+    expect(res.body.invoice.visit.status).toBe("paid");
+    expect(res.body.invoice.balance_cents).toBe(0);
