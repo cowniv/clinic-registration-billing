@@ -54,3 +54,30 @@ describe("patients", () => {
     expect(res.status).toBe(403);
   });
 
+  it("flags duplicates", async () => {
+    const res = await request(app)
+      .post("/api/patients")
+      .set(as("frontdesk"))
+      .send({ first_name: "maria", last_name: "dela cruz", birth_date: "1956-04-12", sex: "F" });
+    expect(res.status).toBe(409);
+  });
+});
+
+describe("visit to receipt", () => {
+  it("bills a senior, takes cash, and shows up in the daily report", async () => {
+    const services = (await request(app).get("/api/services").set(as("frontdesk"))).body;
+    const cons = services.find((s) => s.code === "CONS-GEN"); // 500.00
+    const cbc = services.find((s) => s.code === "LAB-CBC"); // 250.00
+
+    let res = await request(app).post("/api/visits").set(as("frontdesk")).send({ patient_id: 1, reason: "Check-up" });
+    expect(res.status).toBe(201);
+    const visitId = res.body.visit.id;
+
+    await request(app).post(`/api/visits/${visitId}/items`).set(as("frontdesk")).send({ service_id: cons.id });
+    res = await request(app).post(`/api/visits/${visitId}/items`).set(as("frontdesk")).send({ service_id: cbc.id });
+    expect(res.body.subtotal_cents).toBe(75000);
+
+    res = await request(app)
+      .put(`/api/visits/${visitId}/discount`)
+      .set(as("frontdesk"))
+      .send({ discount_type: "senior" });
