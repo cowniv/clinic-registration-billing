@@ -7,3 +7,12 @@ const items = [
 ];
 
 describe("computeInvoice", () => {
+  it("adds up line items without a discount", () => {
+    const inv = computeInvoice(items);
+    expect(inv.subtotal_cents).toBe(74000);
+    expect(inv.discount_cents).toBe(0);
+    expect(inv.total_cents).toBe(74000);
+  });
+
+  it("applies 20% for senior citizens and PWDs", () => {
+    expect(computeInvoice(items, "senior").total_cents).toBe(59200);
