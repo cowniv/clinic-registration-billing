@@ -26,3 +26,31 @@ describe("auth", () => {
   });
 
   it("blocks requests without a token", async () => {
+    expect((await request(app).get("/api/patients")).status).toBe(401);
+  });
+});
+
+describe("patients", () => {
+  it("searches by name", async () => {
+    const res = await request(app).get("/api/patients?q=dela").set(as("frontdesk"));
+    expect(res.status).toBe(200);
+    expect(res.body[0].last_name).toBe("Dela Cruz");
+  });
+
+  it("validates new patients", async () => {
+    const res = await request(app)
+      .post("/api/patients")
+      .set(as("frontdesk"))
+      .send({ first_name: "", last_name: "X", birth_date: "bad", sex: "M" });
+    expect(res.status).toBe(400);
+    expect(res.body.fields.first_name).toBeDefined();
+  });
+
+  it("does not let the cashier register patients", async () => {
+    const res = await request(app)
+      .post("/api/patients")
+      .set(as("cashier"))
+      .send({ first_name: "A", last_name: "B", birth_date: "2000-01-01", sex: "M" });
+    expect(res.status).toBe(403);
+  });
+
