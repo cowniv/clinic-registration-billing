@@ -109,3 +109,30 @@ describe("visit to receipt", () => {
     expect(res.status).toBe(201);
     expect(res.body.invoice.visit.status).toBe("paid");
     expect(res.body.invoice.balance_cents).toBe(0);
+
+    const receipt = await request(app).get(`/api/payments/${res.body.payment_id}/receipt`).set(as("cashier"));
+    expect(receipt.body.payment.receipt_no).toBe("OR-000001");
+    expect(receipt.body.payment.change_cents).toBe(40000);
+
+    // invoice is locked now
+    res = await request(app).post(`/api/visits/${visitId}/items`).set(as("frontdesk")).send({ service_id: cbc.id });
+    expect(res.status).toBe(409);
+
+    const report = await request(app).get("/api/reports/daily").set(as("cashier"));
+    expect(report.body.total_cents).toBe(60000);
+    expect(report.body.by_method[0]).toMatchObject({ method: "cash", count: 1 });
+  });
+
+  it("requires a reference for GCash", async () => {
+    const v = await request(app).post("/api/visits").set(as("frontdesk")).send({ patient_id: 2 });
+    const res = await request(app)
+      .post(`/api/visits/${v.body.visit.id}/payments`)
+      .set(as("cashier"))
+      .send({ method: "gcash", amount_cents: 100 });
+    expect(res.status).toBe(400);
+  });
+
+  it("keeps the daily report away from the front desk", async () => {
+    expect((await request(app).get("/api/reports/daily").set(as("frontdesk"))).status).toBe(403);
+  });
+});
