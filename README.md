@@ -31,3 +31,14 @@ cp server/.env.example server/.env
 npm run seed
 npm run dev        # API on :4000, web on :5173
 npm test           # server tests
+```
+Demo logins: `frontdesk`, `cashier`, `admin`, all with password `clinic123`.
+
+### What I practiced
+- Splitting an app into a REST API and a separate React client (with the Vite dev proxy)
+- Token auth and role checks as Express middleware
+- Designing tables and foreign keys for patients, visits, line items and payments
+- Doing money math in centavos and rounding only once
+- Using a database transaction so a payment and the visit status update happen together
+- Testing an API end to end with Supertest and an in-memory database
+- Print stylesheets
