@@ -20,3 +20,14 @@ My first project with a real frontend *and* a real backend talking to each other
 - Input validation with **Zod** on every write route
 - Tests for the billing math and the full visit → payment → report flow
 
+### Tech
+**Server:** Node · Express · SQLite (better-sqlite3) · Zod · jsonwebtoken · bcryptjs · Vitest + Supertest
+**Client:** React 19 · TypeScript · Vite · Tailwind CSS v4 · React Router
+
+### Run
+```bash
+npm run install:all
+cp server/.env.example server/.env
+npm run seed
+npm run dev        # API on :4000, web on :5173
+npm test           # server tests
