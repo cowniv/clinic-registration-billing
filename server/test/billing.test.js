@@ -16,3 +16,12 @@ describe("computeInvoice", () => {
 
   it("applies 20% for senior citizens and PWDs", () => {
     expect(computeInvoice(items, "senior").total_cents).toBe(59200);
+    expect(computeInvoice(items, "pwd").discount_cents).toBe(14800);
+  });
+
+  it("rounds the discount to the nearest centavo", () => {
+    const inv = computeInvoice([{ quantity: 1, unit_price_cents: 333 }], "senior");
+    expect(inv.discount_cents).toBe(67);
+    expect(inv.total_cents).toBe(266);
+  });
+
