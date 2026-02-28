@@ -25,3 +25,11 @@ describe("computeInvoice", () => {
     expect(inv.total_cents).toBe(266);
   });
 
+  it("never shows a negative balance", () => {
+    expect(computeInvoice(items, "none", 999999).balance_cents).toBe(0);
+  });
+});
+
+it("formats receipt numbers", () => {
+  expect(formatReceiptNo(42)).toBe("OR-000042");
+});
